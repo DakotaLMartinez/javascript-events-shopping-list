@@ -33,6 +33,19 @@ class ProductsList {
 
 }
 
+class ProductContainer {
+
+  static getContainer() {
+    this.container = this.container || document.querySelector('#productsContainer');
+    return this.container;
+  }
+  
+  static addProduct(product) {
+    this.getContainer().appendChild(product.render());
+
+  }
+}
+
 // The ProductView class has a static method called render (static is analagous to a class method in Ruby)
 // When we call the render method and pass in a product object, it will return a div element with some html 
 // info about the product inside.
@@ -58,20 +71,23 @@ class ProductView {
 }
 
 function init() {
-  let cont = document.querySelector('#productsContainer')
   let products = [
     {
+      id: 1,
       name: 'Zevia',
       price: 4.99,
       description: 'Awesome soda with no sugar'
     },
     {
+      id: 2,
       name: 'Beanfields chips',
       price: 4.99,
       description: "Awesome gluten free bean chips"
     }
-  ]
-  productsList = new ProductsList(cont, products)
+  ].map(productAttributes => Product.create(productAttributes))
+  products.forEach(product => {
+    ProductContainer.addProduct(product)
+  })
 }
 
 function attachListeners() {
@@ -91,11 +107,12 @@ function attachListeners() {
     let target = e.target;
     if(target.matches('#addProduct')) {
       let product = {
+        id: Product.all()[Product.all().length-1].id + 1,
         name: e.target.querySelector('#name').value,
         price: e.target.querySelector('#price').value,
         description: e.target.querySelector('#description').value
       }
-      productsList.addProduct(product);
+      ProductContainer.addProduct(Product.create(product))
     }
   })
 }

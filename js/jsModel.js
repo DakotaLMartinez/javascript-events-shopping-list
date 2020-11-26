@@ -29,6 +29,9 @@ class CRUD {
     return model
   }
 
+  // This method takes an object filled with attributes as an argument, uses them to find a single
+  // object in this.all() that matches all of those attributes. Returns undefined if no such object
+  // exists.
   static find_by(attributes) {
     return this.all().find(model => {
       return attributes.every(attribute => {
@@ -37,24 +40,60 @@ class CRUD {
     })
   }
 
+  // This method takes an id as an argument and finds the object in this.all() that has that id. 
+  // Returns undefined if no such object exists.
   static find_by_id(id) {
     return this.all().find(model => model.id == id);
   }
 
+  // This method takes an object filled with attributes as an argument, uses them to update the
+  // object's attributes with those values. 
+  // This method might be called on the return value of find_by_id
   update(attributes) {
     Object.keys(attributes).forEach(attr => this[attr] = attributes[attr])
     return this;
   }
 
+  // This method removes an object from this.all() by setting the collection equal to a filtered
+  // version of the collection where that object is not included.
   destroy() {
     // set the all array equal to the filtered array of all objects that aren't this one.
-    this.constructor.collection = this.constructor.all().filter(obj => obj !== this)
+    //this.constructor.collection = this.constructor.all().filter(obj => obj !== this)
+    // or we could look for where this object occurs in the array and then splice it out. 
+    // approach # 1
+    debugger
+    let index = this.constructor.all().findIndex(obj => obj == this)
+    if(index > -1) {
+      this.constructor.all().splice(index, 1)
+    }
+    // approach #2
+    // because the find function's callback accepts the index of the element as an 
+    // optional second argument, we can call splice from within the callback without
+    // having to call findIndex first.
+    return this.constructor.all().find((obj, index) => {
+      if(obj == this){
+        this.constructor.all().splice(index, 1);
+        return true;
+      }
+    })
+    return this;
+  }
+  // remember that calling constructor on an object, is like calling class on it would be in ruby
+}
+
+class Product extends CRUD {
+  render() {
+    this.element = this.element || document.createElement('div');
+    
+    this.element.dataset.id = this.id;
+    this.element.innerHTML = `
+      <h3 class="product text-3xl" data-id="${this.id}">${this.name}</h3>
+      <h5>${this.price}</h5>
+      <p>${this.description}</p>
+    `
+    return this.element;
   }
 }
 
-class World extends CRUD {
-  
-}
 
-
-//mdn Array.every
+//mdn Array.find

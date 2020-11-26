@@ -109,16 +109,56 @@ Examples of how you can use this:
 If you want to use the CSS Grid property for layout, you can use it with tailwindcss.
 
 # Shopping List Applications
-Users can add Products to the app (this one is currently done)
-they can then add products to their shopping list 
-they can check products as in their cart.
+- Users can add Products to the app (this one is currently done)
+- they can then add products to their shopping list 
+- they can check off products as in their cart. (we're going through the store and adding products to our cart from our list as we go)
 
 We're going to come up with a layers cheatsheet template for JS like the one we have for rails:
 
 ## Data (Model)
 
-## Behavior (Controller)
+## Display (View) or How things are displayed in HTML markup initially
+## Behavior (Like the Controller - Event Listeners/Handlers) resulting in changes to data and DOM manipulation to update display
 
-## Display (View)
+## DOM Manipulation when/where are they displayed in the browser window
 
 One thing that's a concern in JS is file structure and organization, so we'll be thinking about that here in this project as well. 
+
+Let's think about our application in terms of CRUD:
+## Data
+What are our models?
+Product
+ShoppingListItem
+
+## Display (View) or How things are displayed in HTML markup based on the state of our data
+### Templates
+
+### Rendering Logic (how do we take data and render it using templates) 
+We'll have 3 columns
+The left hand column will show our products that we've added. These are populated from Product.all() displayed by ProductView.render()
+The center column will have the products in our ShoppingList. These are populated from ShoppingListItem.all() where inCart == false rendered by ShoppingListItemView
+The right hand column will show items in our cart. These are populated from
+Center and right columns will contain draggable elements we can move from center to right and back.
+
+## Behavior (tracked by Event Listeners)
+What user behaviors do we care about? And, how do those behaviors affect our data?
+Feature: Users can add Products to the app (this one is currently done in older version without our CRUD class)
+Behavior: User fills in the add product form and submits it.
+Data Result: a Product is created and stored in Product.all()
+Display Result: we see the Product in #productsContainer
+
+Feature: Users can then add products to their shopping list 
+Behavior: User drags a product from the productsList into the ShoppingList
+Data Result: a ShoppingListItem matching the product is created.
+Display Result: the Product appears in the shoppingListContainer
+
+Feature: they can check off products as in their cart. (we're going through the store and adding products to our cart from our list as we go)
+Behavior: User drags a product from their shoppingList to their Cart
+Data Result: a ShoppingListItem is updated to have inCart = true
+Display Result: the ShoppingListItem is removed from shoppingListContainer and added to CartItemsContainer
+
+
+## DOM Manipulation
+
+
+one class that has data behavior and display logic inside of it.
