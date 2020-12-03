@@ -33,6 +33,30 @@ class ShoppingListItem {
     return this;
   }
 
+  destroy() {
+    // set the all array equal to the filtered array of all objects that aren't this one.
+    //this.constructor.collection = this.constructor.all().filter(obj => obj !== this)
+    // or we could look for where this object occurs in the array and then splice it out. 
+    // approach # 1
+    // debugger
+    let index = this.constructor.all().findIndex(obj => obj == this)
+    if(index > -1) {
+      this.constructor.all().splice(index, 1)
+      return this
+    }
+    return false
+    // approach #2
+    // because the find function's callback accepts the index of the element as an 
+    // optional second argument, we can call splice from within the callback without
+    // having to call findIndex first.
+    // return this.constructor.all().find((obj, index) => {
+    //   if(obj == this){
+    //     this.constructor.all().splice(index, 1);
+    //     return true;
+    //   }
+    // })
+  }
+
   render() {
     this.element = this.element || document.createElement('div');
     this.element.draggable = true;

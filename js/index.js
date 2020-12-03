@@ -14,24 +14,24 @@
 // when we do this.container = container, this is similar to @container = container in initialize.
 // in JS we don't need to define a setter and getter to be able to access information in the this object.
 
-let productsList = null
-class ProductsList {
-  constructor(container, products = []) {
-    this.container = container;
-    this.products = [];
-    this.nextProductId = 1;
-    products.forEach(this.addProduct.bind(this))
-  }
+// let productsList = null
+// class ProductsList {
+//   constructor(container, products = []) {
+//     this.container = container;
+//     this.products = [];
+//     this.nextProductId = 1;
+//     products.forEach(this.addProduct.bind(this))
+//   }
 
-  addProduct(product) {
-    product.id = this.nextProductId;
-    this.products.push(product);
-    this.nextProductId++;
-    this.container.appendChild(ProductView.render(product))
-    return product
-  }
+//   addProduct(product) {
+//     product.id = this.nextProductId;
+//     this.products.push(product);
+//     this.nextProductId++;
+//     this.container.appendChild(ProductView.render(product))
+//     return product
+//   }
 
-}
+// }
 
 class ProductContainer {
 
