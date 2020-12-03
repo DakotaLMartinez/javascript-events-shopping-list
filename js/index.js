@@ -46,29 +46,21 @@ class ProductContainer {
   }
 }
 
-// The ProductView class has a static method called render (static is analagous to a class method in Ruby)
-// When we call the render method and pass in a product object, it will return a div element with some html 
-// info about the product inside.
+class ShoppingListContainer {
+  static getContainer() {
+    this.container = this.container || document.querySelector('#shoppingList');
+    return this.container;
+  }
 
-// 
-class ProductView {
+  static addItem(shoppingListItem) {
+    this.getContainer().appendChild(shoppingListItem.render());
+  }
 
-  static render(product) {
-    let div = document.createElement('div');
-    div.dataset.id = product.id;
-    div.innerHTML = `
-      <h3 class="product text-3xl" data-id="${product.id}">${product.name}</h3>
-      <h5>${product.price}</h5>
-      <p>${product.description}</p>
-    `
-    // div.addEventListener('click', function(e){
-    //   // debugger
-    //   e.stopPropagation();
-    //   console.log(`clicked on a product with id: ${this.dataset.id}`)
-    // })
-    return div;
+  static removeItem(shoppingListItem) {
+    shoppingListItem.element.parentNode.removeChild(shoppingListItem.element);
   }
 }
+
 
 function init() {
   let products = [
@@ -81,7 +73,7 @@ function init() {
     {
       id: 2,
       name: 'Beanfields chips',
-      price: 4.99,
+      price: 3.69,
       description: "Awesome gluten free bean chips"
     }
   ].map(productAttributes => Product.create(productAttributes))
@@ -93,8 +85,18 @@ function init() {
 function attachListeners() {
   document.addEventListener('click', function(e) {
     let target = e.target
-    if(target.matches('.product')) {
+    if(target.matches('.addProductToList')) {
       console.log(`This product has an id of ${target.dataset.id}`)
+      let product = Product.findById(target.dataset.id);
+      let item = null;
+      if(product.addedToList) {
+        item = ShoppingListItem.findBy({product: product}).destroy()
+        ShoppingListContainer.removeItem(item)
+      } else {
+        item = ShoppingListItem.create({product: product, inCart: false})
+        ShoppingListContainer.addItem(item)
+      }
+      product.update({addedToList: !product.addedToList}) 
     } else if (target.matches('.likeButton')) {
       // have a data attribute for the product id here, use target.dataset.id to access interprets
       // find the product in the ProductsList that has that id, and update its likes property by adding 1 to it
@@ -107,13 +109,102 @@ function attachListeners() {
     let target = e.target;
     if(target.matches('#addProduct')) {
       let product = {
-        id: Product.all()[Product.all().length-1].id + 1,
+        id: Product.all().last().id + 1,
         name: e.target.querySelector('#name').value,
         price: e.target.querySelector('#price').value,
         description: e.target.querySelector('#description').value
       }
       ProductContainer.addProduct(Product.create(product))
     }
+  })
+//mdn EventTarget.addEventListener
+//mdn element.classList
+//mdn EventTarget.dragenter;
+/*
+We use a dragstart event listener so that we can store a reference to the dragged element.
+This is important so that we can interact with the node when it's dropped
+*/
+  document.addEventListener('dragstart', function(e) {
+    let target = e.target;
+    if(target.matches('.item')){
+      ShoppingListItem.dragged = target;
+      console.dir(ShoppingListItem.dragged)
+    }
+  })
+/*
+We use the dragenter event listener here in combination with conditional logic to indicate
+which target areas are drop areas and if we enter one, we could change the background color of
+the element to indicate we've entered a valid dropzone.
+The classList attribute returns a DOM token list that allows you to add or remove classes or to toggle 
+which will add the class if it's not there and remove the class if it's already there
+*/
+  document.addEventListener('dragenter', function(e) {
+    let target = e.target;
+    if (target.matches('#shoppingCart') || target.matches('#shoppingList') || target.matches('.item')) { 
+      e.preventDefault();
+      e.target.classList.toggle('bg-gray-100')
+      // console.log('dragged over', e.target);
+    }
+  })
+/*
+the dragleave event fires when we are dragging an element over another element and then we leave 
+that element. In this case, we want to remove the gray background if we leave the target dropzone.
+*/
+  document.addEventListener("dragleave", function(e) {
+    let target = e.target;
+    if (target.matches('#shoppingCart') || target.matches('#shoppingList') || target.matches('.item')) { 
+      e.target.classList.toggle('bg-gray-100')
+    }
+
+  })
+/*
+We prevent default in the dragover listeners only when the target is a valid dropzone so that we
+will allow drags to end in this area. (The default is not to allow drags)
+*/
+  document.addEventListener('dragover', function(e) {
+    let target = e.target;
+    if (target.matches('#shoppingCart') || target.matches('#shoppingList') || target.matches('.item')) { 
+      e.preventDefault();
+      // console.dir(e);
+    }
+  })
+/*
+We add the drop event listeners to run when the dragged element is dropped. 
+The target of this event handler is the element we just dropped into. 
+In order to place the dragged element into the target, we need to have stored a reference beforehand
+in an accessible place. We did this by storing the element in ShoppingListItem.dragged in this case.
+When the element is dropped into a valid dropzone, we want to take it and appendChild to the target. 
+Calling appendChild on a node that's already in the DOM has the effect of removing the element from 
+its current parent node. (This is actually setting the parentNode to the target, in our case, removing
+an element from the column its in to the column we dragged it to)
+We also want to remove the gray background we added when we hovered over the dropzone.
+*/
+  document.addEventListener('drop', function(e){
+    let target = e.target;
+    console.dir(e);
+    if (target.matches('#shoppingCart') || target.matches('#shoppingList') || target.matches('.item')) { 
+      e.preventDefault();
+      console.log('dropped');
+      
+      let product = Product.findById(ShoppingListItem.dragged.dataset.productId)
+      let item = ShoppingListItem.findBy({product: product})
+      if(target.matches('.item')) {
+        if(e.offsetY < 20) {
+          target.insertAdjacentElement('beforeBegin',ShoppingListItem.dragged)
+        } else {
+          target.insertAdjacentElement('afterend',ShoppingListItem.dragged)
+        }
+      }
+      else if(target.matches("#shoppingCart")) {
+        item.update({inCart: true}) 
+        target.appendChild(ShoppingListItem.dragged);
+      } else {
+        item.update({inCart: false}) 
+        target.appendChild(ShoppingListItem.dragged);
+      }
+      target.classList.toggle('bg-gray-100')
+    } 
+
   })
 }
 
@@ -135,3 +226,4 @@ console.log('C: after the event listener')
 // 2
 // Every event handler is asynchronous - the event handler callbacks won't be triggered until 
 // all synchronous code (functions we've already called and code that's still running) has finished running.
+//mdn Node;
