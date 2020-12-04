@@ -1,4 +1,12 @@
+
 # Javascript Events Shopping List
+
+## Resources:
+
+[fontawesome](https://fontawesome.com/)
+[tailwindcss](https://tailwindcss.com/components)
+[Event Loop talk](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
+[json-server](https://github.com/typicode/json-server)
 
 ```js
 let productsList = null
@@ -162,3 +170,100 @@ Display Result: the ShoppingListItem is removed from shoppingListContainer and a
 
 
 one class that has data behavior and display logic inside of it.
+
+# Adding in Fetch with JSON-server
+
+We need to install json-server and
+
+```
+npm i -g json-server
+```
+
+create a file called `db.json`
+
+```
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Zevia",
+      "price": 4.99,
+      "description": "Awesome soda with no sugar"
+    },
+    {
+      "id": 2,
+      "name": "Beanfields chips",
+      "price": 3.69,
+      "description": "Awesome gluten free bean chips"
+    }
+  ]
+}
+```
+
+After we have a db.json file. We can use it to create a RESTful API by running
+
+```
+json-server --watch db.json 
+```
+
+We can try out connecting to our mock API using fetch like so:
+
+```
+fetch('http://localhost:3000/products')
+  .then(response => response.json())
+  .then(data => console.log(data));
+```
+
+Transitioning to Async:
+
+
+```js
+  let products = [
+    {
+      id: 1,
+      name: 'Zevia',
+      price: 4.99,
+      description: 'Awesome soda with no sugar'
+    },
+    {
+      id: 2,
+      name: 'Beanfields chips',
+      price: 3.69,
+      description: "Awesome gluten free bean chips"
+    }
+  ].map(productAttributes => Product.create(productAttributes))
+  products.forEach(product => {
+    ProductContainer.addProduct(product)
+  })
+```
+
+Instead of returning an array, Product.all() will return a promise for an array, that way we can fetch the products (async) and then add them to the DOM after we receive them. If we've fetched products before and already stored them, Product.all() can simply return a resolved promise for the stored array.
+```js
+  Product.all()
+    .then(products => {
+      products.forEach(product => {
+        ProductContainer.addProduct(product)
+      })
+    })
+
+    class Product {
+      static all() {
+        // return this.collection = this.collection || [];
+        if(this.collection) {
+          return Promise.resolve(this.collection)
+        } else {
+          return fetch("http://localhost:3000/products")
+            .then((response) => response.json())
+            .then(products => this.collection = products)
+        }
+      }
+    }
+    
+```
+
+## Assignment for next Tuesday:
+
+
+* Add the ability to create shopping list items when clicking on the plus button by a product
+* Add the ability to delete a shopping list item if you click on the plus button that's already highlighted
+* Modify the update method for ShoppingListItem so that if you move it from the list to the cart or vice versa it updates the shopping_list_item on the server before the move is complete.

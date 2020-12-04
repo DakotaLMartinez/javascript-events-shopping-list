@@ -16,7 +16,7 @@ class ShoppingListItem {
   }
 
   static findBy(attributes) {
-    return this.all().find(model => {
+    return this.collection.find(model => {
       return Object.keys(attributes).every(attribute => {
         return model[attribute] === attributes[attribute]
       })
@@ -24,7 +24,7 @@ class ShoppingListItem {
   }
 
   static findById(id) {
-    return this.all().find(model => model.id == id);
+    return this.collection.find(model => model.id == id);
   }
 
   update(attributes) {

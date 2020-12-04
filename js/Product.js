@@ -6,19 +6,49 @@ class Product {
     this.description = attributes.description;
     this.addedToList = false;
   }
-//mdn Promise;
+  //mdn Promise
+  // all returns a promise for an array of product instances (this.collection)
+  // we have to chain on a then to Product.all() whenever we call it and we won't get the 
+  // results instantly
   static all() {
-    return this.collection = this.collection || [];
+    // return this.collection = this.collection || [];
+    if(this.collection) {
+      return Promise.resolve(this.collection)
+    } else {
+      return fetch("http://localhost:3000/products")
+        .then((response) => response.json())
+        .then(products => {
+          console.log(products)
+          // take the array of products we get from the API and make them into 
+          // product instances and store them in this.collection
+          return this.collection = products.map(attrs => new Product(attrs))
+        })
+    }
   }
-
+  // create needs to return a promise for the product we created.
   static create(attributes) {
-    let product = new Product(attributes)
-    this.all().push(product)
-    return product
+    // synchronous version
+    // let product = new Product(attributes)
+    // this.collection.push(product)
+    // return product
+    // asynchronous version with fetch 
+    return fetch("http://localhost:3000/products", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(attributes)
+    })
+      .then(response => response.json())
+      .then(productAttributes => {
+        let product = new Product(productAttributes)
+        this.collection.push(product)
+        return product
+      })
   }
 
   static findBy(attributes) {
-    return this.all().find(model => {
+    return this.collection.find(model => {
       return Object.keys(attributes).every(attribute => {
         return model[attribute] === attributes[attribute]
       })
@@ -26,7 +56,7 @@ class Product {
   }
 
   static findById(id) {
-    return this.all().find(model => model.id == id);
+    return this.collection.find(model => model.id == id);
   }
 
   update(attributes) {

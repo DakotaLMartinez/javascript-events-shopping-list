@@ -63,23 +63,12 @@ class ShoppingListContainer {
 
 
 function init() {
-  let products = [
-    {
-      id: 1,
-      name: 'Zevia',
-      price: 4.99,
-      description: 'Awesome soda with no sugar'
-    },
-    {
-      id: 2,
-      name: 'Beanfields chips',
-      price: 3.69,
-      description: "Awesome gluten free bean chips"
-    }
-  ].map(productAttributes => Product.create(productAttributes))
-  products.forEach(product => {
-    ProductContainer.addProduct(product)
-  })
+  Product.all()
+    .then(products => {
+      products.forEach(product => {
+        ProductContainer.addProduct(product)
+      })
+    })
 }
 
 function attachListeners() {
@@ -109,12 +98,16 @@ function attachListeners() {
     let target = e.target;
     if(target.matches('#addProduct')) {
       let product = {
-        id: Product.all().last().id + 1,
         name: e.target.querySelector('#name').value,
         price: e.target.querySelector('#price').value,
         description: e.target.querySelector('#description').value
       }
-      ProductContainer.addProduct(Product.create(product))
+      // we want to add the product to the DOM only after it's been added to the database via Product.create
+      // ProductContainer.addProduct(Product.create(product)) becomes the following =>
+      Product.create(product)
+        .then(product => {
+          ProductContainer.addProduct(product)
+        })
     }
   })
 //mdn EventTarget.addEventListener
@@ -207,10 +200,11 @@ We also want to remove the gray background we added when we hovered over the dro
 
   })
 }
+//mdn insertAdjacentElement;
 
 console.log('A: before the event listener')
 
-window.addEventListener('DOMContentLoaded',function() {
+document.addEventListener('DOMContentLoaded',function() {
   init();
   console.log('B: DOMContentLoaded')
   attachListeners();
