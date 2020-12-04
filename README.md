@@ -3,10 +3,12 @@
 
 ## Resources:
 
-[fontawesome](https://fontawesome.com/)
-[tailwindcss](https://tailwindcss.com/components)
-[Event Loop talk](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
-[json-server](https://github.com/typicode/json-server)
+- [fontawesome](https://fontawesome.com/)
+- [tailwindcss](https://tailwindcss.com/components)
+- [Event Loop talk](https://www.youtube.com/watch?v=8aGhZQkoFbQ)
+- [json-server](https://github.com/typicode/json-server)
+- [Using Fetch on MDN](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch)
+- [MDN docs on Promise object](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)
 
 ```js
 let productsList = null
