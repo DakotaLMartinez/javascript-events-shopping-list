@@ -1,0 +1,25 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Zevia",
+      "price": 4.99,
+      "description": "Awesome soda with no sugar"
+    },
+    {
+      "id": 2,
+      "name": "Beanfields chips",
+      "price": 3.69,
+      "description": "Awesome gluten free bean chips"
+    },
+    {
+      "name": "a",
+      "price": "b",
+      "description": "c",
+      "id": 3
+    }
+  ],
+  "shopping_list_items": [
+    
+  ]
+}
