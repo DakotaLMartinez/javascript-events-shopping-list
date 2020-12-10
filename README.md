@@ -146,7 +146,7 @@ ShoppingListItem
 ### Rendering Logic (how do we take data and render it using templates) 
 We'll have 3 columns
 The left hand column will show our products that we've added. These are populated from Product.all() displayed by ProductView.render()
-The center column will have the products in our ShoppingList. These are populated from ShoppingListItem.all() where inCart == false rendered by ShoppingListItemView
+The center column will have the products in our ShoppingList. These are populated from ShoppingListItem.all() where in_cart == false rendered by ShoppingListItemView
 The right hand column will show items in our cart. These are populated from
 Center and right columns will contain draggable elements we can move from center to right and back.
 
@@ -164,7 +164,7 @@ Display Result: the Product appears in the shoppingListContainer
 
 Feature: they can check off products as in their cart. (we're going through the store and adding products to our cart from our list as we go)
 Behavior: User drags a product from their shoppingList to their Cart
-Data Result: a ShoppingListItem is updated to have inCart = true
+Data Result: a ShoppingListItem is updated to have in_cart = true
 Display Result: the ShoppingListItem is removed from shoppingListContainer and added to CartItemsContainer
 
 
@@ -267,5 +267,21 @@ Instead of returning an array, Product.all() will return a promise for an array,
 
 
 * Add the ability to create shopping list items when clicking on the plus button by a product
-* Add the ability to delete a shopping list item if you click on the plus button that's already highlighted
+* Add the ability to delete a shopping list item if you click on the highlighted minus button
 * Modify the update method for ShoppingListItem so that if you move it from the list to the cart or vice versa it updates the shopping_list_item on the server before the move is complete.
+
+Categories of changes:
+
+## Classes 
+
+### Constructor with attributes
+
+### All method for fetching all instances from server and returning a promise for an array of them 
+
+### Create method that posts a new one and adds it to the client side collection and
+
+### Update method which submits a patch on an individual record and updates the client side version accordingly
+
+### Destroy method which submits a delete request on an individual record and removes the client side version accordingly
+
+### Render which creates/updates a DOM node associated with that instance 

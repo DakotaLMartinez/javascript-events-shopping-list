@@ -33,40 +33,77 @@
 
 // }
 
-class ProductContainer {
+// class ProductContainer {
 
-  static getContainer() {
-    this.container = this.container || document.querySelector('#productsContainer');
-    return this.container;
-  }
+//   static getContainer() {
+//     this.container = this.container || document.querySelector('#productsContainer');
+//     return this.container;
+//   }
   
-  static addProduct(product) {
-    this.getContainer().appendChild(product.render());
+//   static addProduct(product) {
+//     this.getContainer().appendChild(product.render());
 
-  }
-}
+//   }
+// }
 
-class ShoppingListContainer {
-  static getContainer() {
-    this.container = this.container || document.querySelector('#shoppingList');
-    return this.container;
-  }
+// class ShoppingListContainer {
+//   static getContainers() {
+//     this.list = this.list || document.querySelector('#shoppingList');
+//     this.cart = this.cart || document.querySelector('#shoppingCart');
+//     return {
+//       list: this.list,
+//       cart: this.cart
+//     };
+//   }
 
-  static addItem(shoppingListItem) {
-    this.getContainer().appendChild(shoppingListItem.render());
-  }
+//   static addItemToList(shoppingListItem) {
+//     this.getContainers().list.appendChild(shoppingListItem.render());
+//   }
 
-  static removeItem(shoppingListItem) {
-    shoppingListItem.element.parentNode.removeChild(shoppingListItem.element);
-  }
-}
+//   static addItemToCart(shoppingListItem) {
+//     this.getContainers().cart.appendChild(shoppingListItem.render());
+//   }
 
+//   static removeItem(shoppingListItem) {
+//     shoppingListItem.element.parentNode.removeChild(shoppingListItem.element);
+//   }
+// }
+
+console.log('A: before the event listener')
+
+
+document.addEventListener('DOMContentLoaded',function() {
+  init();
+  console.log('B: DOMContentLoaded')
+  attachListeners();
+})
+
+console.log('C: after the event listener')
+
+
+// What order will we see the logs in?
+// 1. A B C
+// 2. A C B
+// 3. C A B
+
+// 2
+// Every event handler is asynchronous - the event handler callbacks won't be triggered until 
+// all synchronous code (functions we've already called and code that's still running) has finished running.
+//mdn Node
 
 function init() {
-  Product.all()
-    .then(products => {
+  let promises = [Product.all(), ShoppingListItem.all()]
+  Promise.all(promises)
+    .then(([products, items]) => {
       products.forEach(product => {
-        ProductContainer.addProduct(product)
+        Product.container().appendChild(product.render())
+      })
+      items.forEach(item => {
+        if(item.in_cart) {
+          ShoppingListItem.cart().appendChild(item.render())
+        } else {
+          ShoppingListItem.list().appendChild(item.render())
+        }
       })
     })
 }
@@ -78,14 +115,16 @@ function attachListeners() {
       console.log(`This product has an id of ${target.dataset.id}`)
       let product = Product.findById(target.dataset.id);
       let item = null;
-      if(product.addedToList) {
-        item = ShoppingListItem.findBy({product: product}).destroy()
-        ShoppingListContainer.removeItem(item)
+      if(product.addedToList()) {
+        let item = ShoppingListItem.findBy({product_id: product.id})
+        item.destroy()
+          // .then(() => product.render())
       } else {
-        item = ShoppingListItem.create({product: product, inCart: false})
-        ShoppingListContainer.addItem(item)
+        ShoppingListItem.create({product_id: product.id, in_cart: false})
+          // .then(() => product.render())
+        
       }
-      product.update({addedToList: !product.addedToList}) 
+      
     } else if (target.matches('.likeButton')) {
       // have a data attribute for the product id here, use target.dataset.id to access interprets
       // find the product in the ProductsList that has that id, and update its likes property by adding 1 to it
@@ -105,9 +144,10 @@ function attachListeners() {
       // we want to add the product to the DOM only after it's been added to the database via Product.create
       // ProductContainer.addProduct(Product.create(product)) becomes the following =>
       Product.create(product)
-        .then(product => {
-          ProductContainer.addProduct(product)
-        })
+        // .then(product => {
+        //   ProductContainer.addProduct(product)
+        //   Product.container.append(product.render())
+        // })
     }
   })
 //mdn EventTarget.addEventListener
@@ -180,7 +220,7 @@ We also want to remove the gray background we added when we hovered over the dro
       console.log('dropped');
       
       let product = Product.findById(ShoppingListItem.dragged.dataset.productId)
-      let item = ShoppingListItem.findBy({product: product})
+      let item = ShoppingListItem.findBy({product_id: product.id})
       if(target.matches('.item')) {
         if(e.offsetY < 20) {
           target.insertAdjacentElement('beforeBegin',ShoppingListItem.dragged)
@@ -189,11 +229,14 @@ We also want to remove the gray background we added when we hovered over the dro
         }
       }
       else if(target.matches("#shoppingCart")) {
-        item.update({inCart: true}) 
-        target.appendChild(ShoppingListItem.dragged);
+        console.log('in cart')
+        item.update({in_cart: true}) 
+          // .then(() => target.appendChild(ShoppingListItem.dragged))
       } else {
-        item.update({inCart: false}) 
-        target.appendChild(ShoppingListItem.dragged);
+        console.log('in list')
+        item.update({in_cart: false}) 
+          // .then(() => target.appendChild(ShoppingListItem.dragged))
+        
       }
       target.classList.toggle('bg-gray-100')
     } 
@@ -202,22 +245,4 @@ We also want to remove the gray background we added when we hovered over the dro
 }
 //mdn insertAdjacentElement;
 
-console.log('A: before the event listener')
 
-document.addEventListener('DOMContentLoaded',function() {
-  init();
-  console.log('B: DOMContentLoaded')
-  attachListeners();
-})
-
-console.log('C: after the event listener')
-
-
-// What order will we see the logs in?
-// 1. A B C
-// 2. A C B
-// 3. C A B
-// 2
-// Every event handler is asynchronous - the event handler callbacks won't be triggered until 
-// all synchronous code (functions we've already called and code that's still running) has finished running.
-//mdn Node;

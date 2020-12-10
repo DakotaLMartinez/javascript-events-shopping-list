@@ -17,9 +17,31 @@
       "price": "b",
       "description": "c",
       "id": 3
+    },
+    {
+      "name": "Assan",
+      "price": "c",
+      "description": "c",
+      "id": 4
+    },
+    {
+      "name": "pizza",
+      "price": "6.99",
+      "description": "Best ever!!!",
+      "id": 5
+    },
+    {
+      "name": "pizza",
+      "price": "6.99",
+      "description": "Best ever!!!",
+      "id": 6
     }
   ],
   "shopping_list_items": [
-    
+    {
+      "product_id": 2,
+      "in_cart": false,
+      "id": 1
+    }
   ]
 }

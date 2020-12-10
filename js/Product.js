@@ -4,7 +4,10 @@ class Product {
     this.name = attributes.name;
     this.price = attributes.price;
     this.description = attributes.description;
-    this.addedToList = false;
+  }
+
+  static container() {
+    return this.c ||= document.querySelector('#productsContainer')
   }
   //mdn Promise
   // all returns a promise for an array of product instances (this.collection)
@@ -45,6 +48,10 @@ class Product {
         this.collection.push(product)
         return product
       })
+      .then(product => {
+        this.container().appendChild(product.render())
+        return product
+      })
   }
 
   static findBy(attributes) {
@@ -65,15 +72,19 @@ class Product {
     return this;
   }
 
+  addedToList() {
+    return ShoppingListItem.findBy({product_id: this.id});
+  }
+
   render() {
-    this.element = this.element || document.createElement('div');
+    this.element ||= document.createElement('div');
     
     this.element.dataset.id = this.id;
     this.element.innerHTML = `
       <h3 class="product text-3xl" data-id="${this.id}">${this.name}</h3>
       <h5>${this.price}</h5>
       <p>${this.description}</p>
-      <i class="addProductToList text-xl fa-plus-square ${this.addedToList ? 'fas' : 'far'}" data-id="${this.id}"></i>
+      <i class="addProductToList text-xl ${this.addedToList() ? 'fa-minus-square fas' : 'fa-plus-square far'}" data-id="${this.id}"></i>
     `
     return this.element;
   }
